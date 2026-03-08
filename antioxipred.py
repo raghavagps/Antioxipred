@@ -204,10 +204,9 @@ else:
 
    blast_df = blast_df[[0,1,2]]
    blast_df.columns = ["Query_ID", "Database_ID", "Percent_identity"]
-   if os.path.exists(output_path):
-    os.remove(output_path)
+    
    blast_df["adjustment"] = 0.0
-   # positive-positive hit
+   
    blast_df.loc[
                 blast_df["Database_ID"].str.contains("pos", na =False),
                 "adjustment"
