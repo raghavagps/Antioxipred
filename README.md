@@ -1,4 +1,5 @@
-ANTIOXIPRED
+**ANTIOXIPRED**
+
 A method for predicting antioxidant potential in peptides
 
 Introduction
@@ -80,4 +81,5 @@ antioxipred.py : Main python program
 AOPP.test.2023.fasta : Example file contain peptide sequences in FASTA format
 
 blast_db : Database for BLAST search
+
 
