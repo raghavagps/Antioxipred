@@ -58,7 +58,7 @@ After replacing the bin folder, the program will automatically use the correct B
 Run the program using:
 
 ```
-python3 antioxipred.py -f AOPP.test.2023.fasta -o output
+python3 antioxipred.py -f AOPP.test.2023.fasta -o result
 ```
 
 ---
