@@ -1,0 +1,22 @@
+{
+  "version": "1.2",
+  "dbname": "antioxidant_Training_db",
+  "dbtype": "Protein",
+  "db-version": 5,
+  "description": "TOTAL.fasta",
+  "number-of-letters": 19734,
+  "number-of-sequences": 3022,
+  "last-updated": "2026-03-05T16:55:00",
+  "number-of-volumes": 1,
+  "bytes-total": 1364221,
+  "bytes-to-cache": 47041,
+  "files": [
+    "antioxidant_Training_db.pdb",
+    "antioxidant_Training_db.phr",
+    "antioxidant_Training_db.pin",
+    "antioxidant_Training_db.pot",
+    "antioxidant_Training_db.psq",
+    "antioxidant_Training_db.ptf",
+    "antioxidant_Training_db.pto"
+  ]
+}
