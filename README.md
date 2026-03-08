@@ -1,31 +1,32 @@
-## ANTIOXIPRED
+# ANTIOXIPRED
 
 A method for predicting antioxidant potential in peptides
 
-# Introduction
+## Introduction
 
 AntioxiPred is a computational framework designed to predict the antioxidant potential of peptide sequences with high accuracy using machine learning approaches. The method integrates a similarity-based search using the Basic Local Alignment Search Tool (BLAST) with a CatBoost(Categorical Boosting) classifier. The predictive model is trained using composition-based features, including Pseudo Amino Acid Composition (PAAC) and one-hot encoded sequence profiles, enabling the capture of both global compositional characteristics and positional sequence information.
 
-# Requirements
+## Requirements
 scikit-learn=1.6.1
 Pandas
 Numpy
 Joblib
 
 
-# You can set up the environment using either requirements.txt (for pip users) or environment.yml (for Conda users).
+You can set up the environment using either requirements.txt (for pip users) or environment.yml (for Conda users).
 
-# Using requirements.txt
-
+### Using requirements.txt
+```
 pip install -r requirements.txt
+```
 
-# Using environment.yml
-
+### Using environment.yml
+```
 conda env create -f env.yml
-
+```
 No additional package/tool is required for model = 1 (default model)
 
-# For the hybrid prediction mode (Model 2) in AntioxiPred requires the NCBI BLAST+ software.
+### For the hybrid prediction mode (Model 2) in AntioxiPred requires the NCBI BLAST+ software.
 
 For Windows, Linux and macOS users
 
@@ -56,7 +57,7 @@ After replacing the bin folder, the program will automatically use the correct B
 
 Run the program using:
 
-```bash
+```
 python3 antioxipred.py -f AOPP.test.2023.fasta -o output
 ```
 
