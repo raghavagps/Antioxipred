@@ -28,29 +28,9 @@ No additional package/tool is required for model = 1 (default model)
 
 ### For the hybrid prediction mode (Model 2) in AntioxiPred requires the NCBI BLAST+ software.
 
-For Windows, Linux and macOS users
-
 BLAST executables are platform-specific. Therefore, users must download the appropriate version of NCBI BLAST+ from the official NCBI website:
 
 https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
-
-## Steps:
-
-1.Download the BLAST+ package for your operating system.
-2.Extract the downloaded archive.
-3.Copy the bin folder from the extracted BLAST package.
-4.Replace the existing folder inside the AntioxiPred directory:
-
-```
-ANTIOXIPRED/
-│
-├── antioxipred.py
-├── ncbi_blast/
-│   └── bin/← replace this folder with the one from the downloaded BLAST package
-``` 
-
-After replacing the bin folder, the program will automatically use the correct BLAST executable.
-
 
 
 ## Standalone Minimum Usage
