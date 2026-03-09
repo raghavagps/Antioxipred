@@ -174,20 +174,30 @@ else:
    #===========================ML+BLAST================================================#
    db_path = f"{directory_path}/blast_db/antioxidant_Training_db"
    output_path = f"{directory_path}/blast_db/100.txt"
+   """ 
    blastp_path = os.path.join(directory_path, "ncbi_blast", "bin", "blastp")
 
-# Add .exe only on Windows
+   # Add .exe only on Windows
    if os.name == "nt":
        blastp_path += ".exe"
+   """     
    #BLast command
-   blast_command = f'"{blastp_path}" -query "{fasta_loc}" -task blastp-short -db "{db_path}" -out "{output_path}" -outfmt 6 -evalue 100 -max_target_seqs 1 -max_hsps 1'
+    
+    blast_command = [
+    "blastp",
+    "-query", fasta_loc,
+    "-task", "blastp-short",
+    "-db", db_path,
+    "-out", output_path,
+    "-outfmt", "6",
+    "-evalue", "100",
+    "-max_target_seqs", "1",
+    "-max_hsps", "1"]
 
-   print(f"Running: {blast_command}")
-   result = subprocess.run(blast_command, shell=True, capture_output=True, text=True)
-
+   result = subprocess.run(blast_command, capture_output=True, text=True)
    print("BLAST STDOUT:", result.stdout)
    print("BLAST STDERR:", result.stderr)
-   print("Exit code:", result.returncode)
+   print("Exit code:", result.returncodee)
 
 # ALWAYS define blast_df, even if empty
    if result.returncode != 0 or not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
