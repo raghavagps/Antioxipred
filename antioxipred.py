@@ -183,7 +183,7 @@ else:
    """     
    #BLast command
     
-    blast_command = [
+   blast_command = [
     "blastp",
     "-query", fasta_loc,
     "-task", "blastp-short",
