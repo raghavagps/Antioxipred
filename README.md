@@ -8,8 +8,11 @@ AntioxiPred is a computational framework designed to predict the antioxidant pot
 
 ## Requirements
 scikit-learn=1.6.1
+
 Pandas
+
 Numpy
+
 Joblib
 
 
