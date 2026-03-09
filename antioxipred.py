@@ -197,7 +197,7 @@ else:
    result = subprocess.run(blast_command, capture_output=True, text=True)
    print("BLAST STDOUT:", result.stdout)
    print("BLAST STDERR:", result.stderr)
-   print("Exit code:", result.returncodee)
+   print("Exit code:", result.returncode)
 
 # ALWAYS define blast_df, even if empty
    if result.returncode != 0 or not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
