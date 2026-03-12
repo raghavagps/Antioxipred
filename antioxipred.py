@@ -22,7 +22,9 @@ output_loc = args.output
 model_chosen = args.model
 threshold = args.threshold
 directory_path = os.path.dirname(os.path.abspath(__file__))
-
+os.makedirs(output_loc, exist_ok=True)
+FEATURE_DIR = os.path.join(os.getcwd(), "feature_used")
+os.makedirs(FEATURE_DIR, exist_ok=True)
 
 # Read Fasta file or plain sequences
 def read_fasta(file_path):
@@ -90,7 +92,8 @@ def ohef_fasta(fasta_file):
     bpf_sequences = [one_hot_encoding_profile(seq) for seq in padded_sequences]
     column_names = feature_column_names()
     ohe_df = pd.DataFrame(bpf_sequences, index=headers, columns=column_names)
-    ohe_df.to_csv(os.path.join("feature_used","One_hot_encoding.csv"),index_label="Peptide")
+    feature_dir = FEATURE_DIR
+    ohe_df.to_csv(os.path.join(feature_dir, "One_hot_encoding.csv"),index_label="Peptide")
     return ohe_df
 
 #fasta_file = "AOPP.test.2023.fasta"
@@ -100,26 +103,189 @@ ohe_df = ohef_fasta(fasta_loc)
 #====================#====================#=================#
 
 # Extract feature PAAC
+std = list("ACDEFGHIKLMNPQRSTVWY")
+    def split(file,v):
+        filename, file_extension = os.path.splitext(os.path.basename(file))
+        headers, sequences = read_fasta(file)
+        df2 = pd.DataFrame([seq.upper() for seq in sequences])
+        for i in range(0,len(df2)):
+           ss = len(df2[0][i])
+           if ss == 0:
+            print('\nSequence number',i+1,'has length of',ss,'. Hence, the number of splits should be between 2 to',ss,'. Kindly provide number of splits in the suggested range.')
+            sys.exit()
+        k1 = []
+        for e in range(0,len(df2)):
+            s = 0
+            k2 = []
+            r = 0
+            if len(df2[0][e])%v == 0:
+               k2.extend(repeat(int(len(df2[0][e])/v),v))
+            else:
+                r = int(len(df2[0][e])%v)
+                k2.extend(repeat(int(len(df2[0][e])/v),v-1))
+                k2.append((int(len(df2[0][e])/v))+r)
+            for j in k2:
+                df3 = df2[0][e][s:j+s]
+                k1.append(df3)
+                s = j+s
+        df4 = pd.DataFrame(k1)
+        #df4.to_csv(filename+".split", index = None, header = False, encoding = 'utf-8')
+        return df4
+    def aac_comp(file,out):
+        filename, file_extension = os.path.splitext(os.path.basename(file))
+        f = open(out, 'w')
+        sys.stdout = f
+        headers, sequences = read_fasta(file)
+        zz = [seq.upper() for seq in sequences]
+        print("AAC_A,AAC_C,AAC_D,AAC_E,AAC_F,AAC_G,AAC_H,AAC_I,AAC_K,AAC_L,AAC_M,AAC_N,AAC_P,AAC_Q,AAC_R,AAC_S,AAC_T,AAC_V,AAC_W,AAC_Y,")
+        for j in zz:
+            for i in std:
+                count = 0
+                for k in j:
+                    temp1 = k
+                    if temp1 == i:
+                        count += 1
+                    composition = (count/len(j))*100
+                print("%.2f"%composition, end = ",")
+            print("")
+        f.truncate()
+	
+    def aac_split(file,v,out):
+        file1 = split(file,v)
+        file2 = file1.iloc[:,0]
+        file2.to_csv(os.path.join(FEATURE_DIR, 'sam_input.csv'), index=None, header=None)
+        aac_comp(fasta_loc, os.path.join(FEATURE_DIR, 'tempfile_out'))
+        df4_1 = pd.read_csv(os.path.join(FEATURE_DIR, 'tempfile_out'))
+        df4 = df4_1.iloc[:,:-1]
+        head = []
+        for j in range(1,v+1):
+           for i in df4.columns:
+               head.append(i+'_s'+str(j))
+        ss = []
+        for i in range(0,len(df4)):
+           ss.extend(df4.loc[i])
+        pp = []
+        for i in range(0,len(ss),(v*20)):
+            pp.append(ss[i:i+(v*20)])
+        df5= pd.DataFrame(pp)
+        df5.columns = head
+        df5 = round(df5,2)
+        df5.to_csv(out,index=None)
+        os.remove(os.path.join(FEATURE_DIR, 'sam_input.csv'))                             # FIXED
+        os.remove(os.path.join(FEATURE_DIR, 'tempfile_out'))
 
+
+
+    def val(AA_1, AA_2, aa, mat):
+        return sum([(mat[i][aa[AA_1]] - mat[i][aa[AA_2]]) ** 2 for i in range(len(mat))]) / len(mat)
+    def paac_1(file,lambdaval,w=0.05):
+        data1 = pd.read_csv(os.path.join(directory_path, "Data", "data"), sep = "\t") 
+        filename, file_extension = os.path.splitext(os.path.basename(file)) 
+        headers, sequences = read_fasta(file)  
+        df1 = pd.DataFrame([seq.upper() for seq in sequences])
+        dd = []
+        cc = []
+        pseudo = []
+        aa = {}
+        for i in range(len(std)):
+            aa[std[i]] = i
+        for i in range(0,3):
+            mean = sum(data1.iloc[i][1:])/20
+            rr = math.sqrt(sum([(p-mean)**2 for p in data1.iloc[i][1:]])/20)
+            dd.append([(p-mean)/rr for p in data1.iloc[i][1:]])
+            zz = pd.DataFrame(dd)
+        head = []
+        for n in range(1, lambdaval + 1):
+            head.append('_lam' + str(n))
+        head = ['PAAC'+str(lambdaval)+sam for sam in head]
+        pp = pd.DataFrame()
+        ee = []
+        for k in range(0,len(df1)):
+            cc = []
+            pseudo1 = [] 
+            for n in range(1,lambdaval+1):
+               cc.append(sum([val(df1[0][k][p], df1[0][k][p + n], aa, dd) for p in range(len(df1[0][k]) - n)]) / (len(df1[0][k]) - n))
+               qq = pd.DataFrame(cc)
+            pseudo = pseudo1 + [(w * p) / (1 + w * sum(cc)) for p in cc]
+            ee.append(pseudo)
+            ii = round(pd.DataFrame(ee, columns = head),4)
+        ii.to_csv(os.path.join(FEATURE_DIR, f"{filename}.lam"), index=None)
+		
+    def paac(file,lambdaval, out, w=0.05):
+        filename, file_extension = os.path.splitext(os.path.basename(file))
+        paac_1(file,lambdaval,w=0.05)
+        aac_comp(file,os.path.join(FEATURE_DIR, f"{filename}.aac"))
+        data1 = pd.read_csv(os.path.join(FEATURE_DIR, f"{filename}.aac"))  
+        data2 = pd.read_csv(os.path.join(FEATURE_DIR, f"{filename}.lam")) 
+        header = ['PAAC'+str(lambdaval)+'_A','PAAC'+str(lambdaval)+'_C','PAAC'+str(lambdaval)+'_D','PAAC'+str(lambdaval)+'_E','PAAC'+str(lambdaval)+'_F','PAAC'+str(lambdaval)+'_G','PAAC'+str(lambdaval)+'_H','PAAC'+str(lambdaval)+'_I','PAAC'+str(lambdaval)+'_K','PAAC'+str(lambdaval)+'_L','PAAC'+str(lambdaval)+'_M','PAAC'+str(lambdaval)+'_N','PAAC'+str(lambdaval)+'_P','PAAC'+str(lambdaval)+'_Q','PAAC'+str(lambdaval)+'_R','PAAC'+str(lambdaval)+'_S','PAAC'+str(lambdaval)+'_T','PAAC'+str(lambdaval)+'_V','PAAC'+str(lambdaval)+'_W','PAAC'+str(lambdaval)+'_Y','Un']	
+        data1.columns = header    
+        data3 = pd.concat([data1.iloc[:,:-1],data2], axis = 1).reset_index(drop=True)
+        data3.to_csv(out,index=None)
+        # CRITICAL FIX
+        del data1
+        del data2
+        del data3
+
+        import gc
+        gc.collect()
+
+        import time
+        time.sleep(0.5)
+
+    # Safe delete
+        for f in [os.path.join(FEATURE_DIR, filename + ".lam"), 
+              os.path.join(FEATURE_DIR, filename + ".aac")]:
+            try:
+               if os.path.exists(f):
+                   os.remove(f)
+            except PermissionError:
+                print(f"Warning: Could not delete {f}")
+
+    def paac_split(file,v,lg,out,w):
+        paac(file,lg,os.path.join(FEATURE_DIR, 'tempfile_out'),w)
+        df4 = pd.read_csv(os.path.join(FEATURE_DIR, 'tempfile_out'))
+        head = []
+        for j in range(1,v+1):
+            for i in df4.columns:
+                head.append(i+'_s'+str(j))
+        ss = []
+        for i in range(0,len(df4)):
+            ss.extend(df4.loc[i])
+        pp = []
+        for i in range(0,len(ss),int(v*(len(ss)/len(df4)))):
+            pp.append(ss[i:i+int((v*(len(ss)/len(df4))))])
+        df5= pd.DataFrame(pp)
+        df5.columns = head
+        df5 = round(df5,2)
+        df5.to_csv(out,index=None)
+        os.remove(os.path.join(FEATURE_DIR, 'tempfile_out'))
+	
+
+
+
+
+
+""""
 def run_pfeature_paac(fasta_file, output_file):
     cmd = ["python", "pfeature_comp.py", 
            "-i", fasta_file,
            "-o", output_file,
            "-j", "PAAC"]
     subprocess.run(cmd, check =False)
-
+"""
 def paac_pfeature(fasta_file):
-    temp_output = os.path.join("feature_used","PAAC.csv")
+        feature_dir = FEATURE_DIR
+        temp_output = os.path.join(feature_dir,"PAAC.csv")
     
-    run_pfeature_paac(fasta_file, temp_output)
+        paac(fasta_file,lambdaval=1, out=temp_output, w=0.05)
     
-    if not os.path.exists(temp_output):
-        raise FileNotFoundError("PAAC output not generated!")
+        if not os.path.exists(temp_output):
+            raise FileNotFoundError("PAAC output not generated!")
     
-    paac_df = pd.read_csv(temp_output)
-    
-    os.remove(temp_output)
-    return paac_df
+        paac_df = pd.read_csv(temp_output)
+        paac_df.to_csv(os.path.join(FEATURE_DIR, "PAAC.csv"), index=False)
+        
+        return paac_df
 
 #fasta_file = "AOPP.test.2023.fasta"
 paac_df = paac_pfeature(fasta_loc)
@@ -128,15 +294,19 @@ paac_df.index = ohe_df.index
 #Combine both one hot encoded sequences + PAAC features dataframes
 
 combined_df = pd.concat([ohe_df, paac_df], axis = 1)
-combined_df.to_csv(os.path.join("feature_used","Ohe+paac.csv"), index_label="Peptide")
+combined_path =os.path.join(FEATURE_DIR, "ohe+paac.csv")
+
 #reading the combined dataframe csv file
-combine_df = pd.read_csv(os.path.join("feature_used", "Ohe+paac.csv"))
+combined_df.to_csv(combined_path, index_label="Peptide")
+combine_df = pd.read_csv(combined_path)
+
 #276 features are selected from the combined dataframe.
 Selected = pd.read_csv(os.path.join(directory_path, "Feature", "selected_features.csv"))
 selected_features = Selected['Feature'].tolist()
 
 combined_selected_df = combine_df[selected_features]
-combined_selected_df.to_csv("selected_ohe+paac.csv", index = False)
+selected_path = os.path.join(FEATURE_DIR, "selected_ohe+paac.csv")
+combined_selected_df.to_csv(selected_path, index = False)
 
 #Prediction
 
