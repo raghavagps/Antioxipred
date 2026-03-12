@@ -35,6 +35,39 @@ BLAST executables are platform-specific. Therefore, users must download the appr
 
 https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 
+## Minimum USAGE
+To know about the available option for the standlone, type the following command:
+
+```
+antioxipred -h
+
+```
+To run the example, type the following command:
+
+```
+antioxipred -f AOPP.test.2023.fasta -o output
+
+```
+Here, -f argument is to enter the input file in Fasta format and -o argument is for giving the path to the output directory. By default, the package uses model (-m) = 1 which employs only ML algorithm (Categorical Boosting) to classify the peptide sequences, which generates a prediction file "classification_ml_(datetime).csv" in the specified output directory. If model (-m) = 2 is selected, then the hybrid model is employed (ML + BLAST) to classify the peptide sequences, which generates a prediction file "classification_hybrid(datetime).csv" in the specified output directory.
+
+## Full Usage
+```
+usage: antioxipred [-h] --file FILE --output OUTPUT [--model MODEL] [--threshold THRESHOLD]
+Please provide following arguments for successful run
+required arguments:
+  --file FILE, -f FILE                   Path to fasta file
+  --output OUTPUT, -o OUTPUT             Path to output
+
+optional arguments:
+
+  --model MODEL, -m MODEL                Model selection: 1 for ML only, 2 for ML + BLAST (By default model = 1)
+  --threshold THRESHOLD, -t THRESHOLD    Threshold for classification (can be any value between 0-1 for model = 1 (by default = 0.5) and 0-2 for model = 2 (by default = 0.52))
+
+For help:
+  -h, --help            show this help message and exit
+
+```
+
 
 ## Standalone Minimum Usage
 
