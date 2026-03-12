@@ -113,7 +113,6 @@ The package contains the following files:
 | `README.md` | Documentation and usage instructions |
 | `catboost_model_server.pkl` | Pickled CatBoost prediction model |
 | `antioxipred.py` | Main Python script used to run the prediction |
-| `pfeature_comp.py` | Python script used to extract the feature PAAC| 
 | `AOPP.test.2023.fasta` | Example FASTA file containing peptide sequences |
 | `blast_db/` | Database used for BLAST similarity search |
 
