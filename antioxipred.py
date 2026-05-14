@@ -317,7 +317,7 @@ def model(file_path):
 model_path = f"{directory_path}/model/catboost_model_server.pkl"
 load_model = model(model_path)
 
-co_df = pd.read_csv("selected_ohe+paac.csv")
+co_df = pd.read_csv(selected_path)
 
 cc_df = co_df.drop(columns=['Peptide'])
 feature_array = np.array(cc_df)
