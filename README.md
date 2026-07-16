@@ -1,4 +1,4 @@
-# ANTIOXIPRED
+# AntiOxiPred
 
 A method for predicting antioxidant potential in peptides
 
